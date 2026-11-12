@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BiliardinoPro – Torneo 16 Squadre</title>
+  <!-- Tailwind CSS per lo stile grafico responsivo -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900 pb-20">
+
+  <!-- Notifica Toast in basso a destra -->
+  <div id="toast-container" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-sm font-medium flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400 shrink-0">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+    <span id="toast-text"></span>
+  </div>
+
+  <!-- Header Superiore Fisso -->
+  <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-200/70">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+      <!-- Logo e Titolo -->
+      <div class="flex items-center gap-2.5">
+        <div class="bg-blue-600 text-white p-1.5 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-black tracking-tight text-slate-800 leading-none">
+            Biliardino<span class="text-blue-600">Pro</span>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium hidden sm:block">
+            Torneo 16 Squadre • Risultati Live
+          </p>
+        </div>
+      </div>
+
+      <!-- Stato Firebase + Pulsanti Azione -->
+      <div class="flex items-center gap-2">
+        <span id="cloud-badge" title="Connessione a Firebase in corso..." class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">
+          <span id="cloud-dot" class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+          <span id="cloud-text">Connessione...</span>
+        </span>
+
+        <button type="button" id="btn-share" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-medium text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
+            <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+          </svg>
+          <span class="hidden sm:inline">Condividi Link</span>
+        </button>
+
+        <button type="button" id="btn-admin" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-medium text-sm transition-all bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <span id="btn-admin-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </span>
+          <span id="btn-admin-label">Admin</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra di Navigazione delle 5 Pagine -->
+    <nav aria-label="Navigazione principale torneo" class="bg-slate-50/90 border-t border-slate-200/70">
+      <div id="main-nav" class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-1.5 sm:gap-2 overflow-x-auto custom-scrollbar">
+        <!-- Popolato dinamicamente da JavaScript -->
+      </div>
+    </nav>
+  </header>
+
+  <!-- Contenuto Principale delle Pagine -->
+  <main id="app-main" class="max-w-6xl mx-auto px-4 py-6">
+    <div class="min-h-[60vh] flex items-center justify-center">
+      <div class="flex flex-col items-center gap-3">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        <p class="text-slate-500 font-medium text-sm">Connessione a Firebase in corso...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modale Accesso Admin -->
+  <div id="modal-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h2 class="text-lg font-bold text-slate-800">Accesso Organizzatore</h2>
+        <button type="button" id="close-admin-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500" aria-label="Chiudi">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <form id="form-admin-login" class="space-y-4">
+          <p class="text-sm text-slate-500">
+            Inserisci la password amministratore (default:
+            <code class="bg-slate-100 px-1.5 py-0.5 rounded font-bold text-slate-700">admin</code>)
+            per inserire i risultati e rinominare le squadre.
+          </p>
+          <div>
+            <label for="input-admin-pwd" class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+            <input
+              type="password"
+              id="input-admin-pwd"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              placeholder="Inserisci password..."
+            />
+            <p id="admin-login-error" class="hidden text-xs text-rose-600 font-medium mt-1.5">
+              Password non corretta. Riprova.
+            </p>
+          </div>
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+            </svg>
+            <span>Sblocca Modifiche</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Modifica Nome Squadra -->
+  <div id="modal-edit-team" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h2 class="text-lg font-bold text-slate-800">Modifica Nome Squadra</h2>
+        <button type="button" id="close-edit-team-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500" aria-label="Chiudi">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <form id="form-edit-team" class="space-y-4">
+          <div>
+            <label for="input-team-name" class="block text-sm font-semibold text-slate-700 mb-1">Nuovo nome</label>
+            <div class="flex items-center gap-3">
+              <div class="bg-slate-100 p-2.5 rounded-lg text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="input-team-name"
+                class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium text-slate-800"
+                placeholder="Es. Anselmo - Niero"
+              />
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" id="cancel-edit-team" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-lg transition-colors">
+              Annulla
+            </button>
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span>Salva</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logica Applicativa + Sincronizzazione Real-Time Firebase -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Configurazione Firebase del Torneo ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBQO6UdfuITk2TDdZds-w0R232AZg9KLsU",
+      authDomain: "torneo-biliardino-8ec32.firebaseapp.com",
+      projectId: "torneo-biliardino-8ec32",
+      storageBucket: "torneo-biliardino-8ec32.firebasestorage.app",
+      messagingSenderId: "1097642543869",
+      appId: "1:1097642543869:web:8a2830bcb02c6fc5438c94"
+    };
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'torneo-biliardino-8ec32';
+
+    let auth = null;
+    let db = null;
+
+    try {
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+    } catch (err) {
+      console.error('Errore inizializzazione Firebase:', err);
+    }
+
+    // --- Icone SVG Riutilizzabili ---
+    const ICONS = {
+      trophy: (size = 20, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+      layoutGrid: (size = 16, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`,
+      calendar: (size = 16, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>`,
+      barChart: (size = 16, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>`,
+      bookOpen: (size = 16, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+      lock: (size = 16, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+      unlock: (size = 16, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`,
+      edit: (size = 13, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`,
+      medal: (size = 40, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg>`,
+      arrowDown: (size = 15, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>`,
+      arrowRight: (size = 15, cls = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`
+    };
+
+    // --- Nomi delle 16 Squadre Partecipanti ---
+    const DEFAULT_TEAM_NAMES = {
+      '1': 'Anselmo - Niero',
+      '2': 'Calò - Sciacca',
+      '3': 'Scammacca - Troisi',
+      '4': 'Cursaro - Tretola',
+      '5': 'Armento - Palumbo',
+      '6': 'Corrado - Lazzari',
+      '7': 'Pentangelo - Galante',
+      '8': 'Garofalo - Lepore',
+      '9': 'Crescenzi - Siliquini',
+      '10': 'Garia - T.Col. Iannucci',
+      '11': 'Porcu - Cau',
+      '12': 'Casini - Riacà',
+      '13': 'Durante - Lavigna',
+      '14': 'Basilicata - De Lisa',
+      '15': 'Tessitore - Secchi',
+      '16': 'Dionisi M. - Cucurachi'
+    };
+
+    // --- Generazione Dati Iniziali (4 Gironi da 4, Andata e Ritorno) ---
+    function createDefaultData() {
+      const teams = {};
+      for (let i = 1; i <= 16; i++) {
+        const id = i.toString();
+        teams[id] = { name: DEFAULT_TEAM_NAMES[id] };
+      }
+
+      const groups = {
+        A: ['1', '2', '3', '4'],
+        B: ['5', '6', '7', '8'],
+        C: ['9', '10', '11', '12'],
+        D: ['13', '14', '15', '16']
+      };
+
+      const groupMatches = {};
+      Object.keys(groups).forEach((g) => {
+        const t = groups[g];
+        const schedule = [
+          { round: 1, pairs: [[0, 1], [2, 3]] },
+          { round: 2, pairs: [[0, 2], [1, 3]] },
+          { round: 3, pairs: [[0, 3], [1, 2]] }
+        ];
+
+        schedule.forEach(({ round, pairs }) => {
+          pairs.forEach(([i, j]) => {
+            // Partita di Andata
+            groupMatches[`${g}_${t[i]}_${t[j]}_H`] = {
+              group: g,
+              round,
+              leg: 'Andata',
+              t1: t[i],
+              t2: t[j],
+              s1: '',
+              s2: ''
+            };
+            // Partita di Ritorno
+            groupMatches[`${g}_${t[j]}_${t[i]}_A`] = {
+              group: g,
+              round: round + 3,
+              leg: 'Ritorno',
+              t1: t[j],
+              t2: t[i],
+              s1: '',
+              s2: ''
+            };
+          });
+        });
+      });
+
+      const koMatches = {
+        QF1: { s1: '', s2: '' },
+        QF2: { s1: '', s2: '' },
+        QF3: { s1: '', s2: '' },
+        QF4: { s1: '', s2: '' },
+        SF1: { s1: '', s2: '' },
+        SF2: { s1: '', s2: '' },
+        F: { s1: '', s2: '' }
+      };
+
+      return { teams, groups, groupMatches, koMatches };
+    }
+
+    // --- Stato Globale dell'Applicazione ---
+    const state = {
+      user: null,
+      data: null,
+      isAdmin: false,
+      cloudStatus: 'connecting', // 'connecting' | 'connected' | 'error'
+      activePage: 'tabellone',   // 'tabellone' | 'calendario' | 'classifiche' | 'fase_finale' | 'regolamento'
+      calendarGroup: 'A',        // 'A' | 'B' | 'C' | 'D'
+      legFilter: 'Tutte',        // 'Tutte' | 'Andata' | 'Ritorno'
+      editingTeamId: null
+    };
+
+    // --- Utility Sicurezza HTML e Toast ---
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    let toastTimeout = null;
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const textEl = document.getElementById('toast-text');
+      if (!container || !textEl) return;
+      textEl.textContent = msg;
+      container.classList.remove('hidden');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        container.classList.add('hidden');
+      }, 3500);
+    }
+
+    function updateCloudBadge() {
+      const badge = document.getElementById('cloud-badge');
+      const dot = document.getElementById('cloud-dot');
+      const text = document.getElementById('cloud-text');
+      if (!badge || !dot || !text) return;
+
+      badge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border ';
+      if (state.cloudStatus === 'connected') {
+        badge.className += 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        badge.title = 'Database Firebase connesso: tutte le modifiche vengono salvate in tempo reale';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+        text.textContent = 'Firebase Connesso';
+      } else if (state.cloudStatus === 'connecting') {
+        badge.className += 'bg-blue-50 text-blue-700 border-blue-200';
+        badge.title = 'Connessione a Firebase in corso...';
+        dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-ping';
+        text.textContent = 'Connessione...';
+      } else {
+        badge.className += 'bg-rose-50 text-rose-700 border-rose-200';
+        badge.title = 'Verifica le regole Firestore e Authentication Anonima sulla console Firebase';
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.textContent = 'Verifica Permessi';
+      }
+    }
+
+    function updateAdminButton() {
+      const btn = document.getElementById('btn-admin');
+      const icon = document.getElementById('btn-admin-icon');
+      const label = document.getElementById('btn-admin-label');
+      if (!btn || !icon || !label) return;
+
+      if (state.isAdmin) {
+        btn.className = 'flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-medium text-sm transition-all bg-amber-100 text-amber-800 hover:bg-amber-200';
+        icon.innerHTML = ICONS.unlock(16);
+        label.textContent = 'Admin Attivo';
+      } else {
+        btn.className = 'flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-medium text-sm transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
+        icon.innerHTML = ICONS.lock(16);
+        label.textContent = 'Admin';
+      }
+    }
+
+    // --- Calcolo Classifiche & Criteri Parità (Art. 4) ---
+    function calculateStandings(group) {
+      if (!state.data) return [];
+      const teamIds = state.data.groups[group];
+      const standings = teamIds.map((id) => ({
+        id,
+        name: state.data.teams[id]?.name || DEFAULT_TEAM_NAMES[id] || `Squadra ${id}`,
+        p: 0,
+        w: 0,
+        l: 0,
+        pts: 0,
+        gf: 0,
+        ga: 0,
+        gd: 0
+      }));
+
+      const teamMap = {};
+      standings.forEach((s) => {
+        teamMap[s.id] = s;
+      });
+
+      const completedGroupMatches = Object.values(state.data.groupMatches).filter(
+        (m) => m.group === group && m.s1 !== '' && m.s2 !== ''
+      );
+
+      completedGroupMatches.forEach((m) => {
+        const s1 = parseInt(m.s1, 10);
+        const s2 = parseInt(m.s2, 10);
+        if (isNaN(s1) || isNaN(s2)) return;
+
+        const t1 = teamMap[m.t1];
+        const t2 = teamMap[m.t2];
+        if (!t1 || !t2) return;
+
+        t1.p++;
+        t2.p++;
+        t1.gf += s1;
+        t1.ga += s2;
+        t2.gf += s2;
+        t2.ga += s1;
+        t1.gd = t1.gf - t1.ga;
+        t2.gd = t2.gf - t2.ga;
+
+        const max = Math.max(s1, s2);
+        if (s1 > s2) {
+          t1.w++;
+          t2.l++;
+          if (max <= 10) {
+            t1.pts += 3;
+          } else {
+            t1.pts += 2;
+            t2.pts += 1;
+          }
+        } else if (s2 > s1) {
+          t2.w++;
+          t1.l++;
+          if (max <= 10) {
+            t2.pts += 3;
+          } else {
+            t2.pts += 2;
+            t1.pts += 1;
+          }
+        } else {
+          t1.pts += 1;
+          t2.pts += 1;
+        }
+      });
+
+      // Criterio 2: Scontro diretto (punti e differenza reti negli incontri diretti)
+      const getHeadToHead = (idA, idB) => {
+        let ptsA = 0;
+        let ptsB = 0;
+        let gdA = 0;
+        let gdB = 0;
+
+        completedGroupMatches.forEach((m) => {
+          if ((m.t1 === idA && m.t2 === idB) || (m.t1 === idB && m.t2 === idA)) {
+            const s1 = parseInt(m.s1, 10);
+            const s2 = parseInt(m.s2, 10);
+            if (isNaN(s1) || isNaN(s2)) return;
+
+            const scoreA = m.t1 === idA ? s1 : s2;
+            const scoreB = m.t1 === idB ? s1 : s2;
+            const max = Math.max(scoreA, scoreB);
+
+            gdA += scoreA - scoreB;
+            gdB += scoreB - scoreA;
+
+            if (scoreA > scoreB) {
+              if (max <= 10) ptsA += 3;
+              else {
+                ptsA += 2;
+                ptsB += 1;
+              }
+            } else if (scoreB > scoreA) {
+              if (max <= 10) ptsB += 3;
+              else {
+                ptsB += 2;
+                ptsA += 1;
+              }
+            }
+          }
+        });
+
+        if (ptsB !== ptsA) return ptsB - ptsA;
+        return gdB - gdA;
+      };
+
+      // Ordinamento: 1. Punti, 2. Scontro diretto, 3. Differenza reti complessiva, 4. Gol fatti
+      return standings.sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        const h2h = getHeadToHead(a.id, b.id);
+        if (h2h !== 0) return h2h;
+        if (b.gd !== a.gd) return b.gd - a.gd;
+        return b.gf - a.gf;
+      });
+    }
+
+    function getGroupProgress(group) {
+      if (!state.data) return { played: 0, total: 12 };
+      const matches = Object.values(state.data.groupMatches).filter((m) => m.group === group);
+      const played = matches.filter((m) => m.s1 !== '' && m.s2 !== '').length;
+      return { played, total: matches.length };
+    }
+
+    function isGroupFinished(group) {
+      const { played, total } = getGroupProgress(group);
+      return total > 0 && played === total;
+    }
+
+    function getKoTeams() {
+      if (!state.data) return null;
+
+      const sA = calculateStandings('A');
+      const sB = calculateStandings('B');
+      const sC = calculateStandings('C');
+      const sD = calculateStandings('D');
+
+      const getT = (groupStr, standingsList, pos) => {
+        return isGroupFinished(groupStr)
+          ? { id: standingsList[pos - 1].id, name: standingsList[pos - 1].name }
+          : { id: null, name: `${pos}ª Girone ${groupStr}` };
+      };
+
+      const qf = {
+        QF1: { t1: getT('A', sA, 1), t2: getT('B', sB, 2) },
+        QF2: { t1: getT('C', sC, 1), t2: getT('D', sD, 2) },
+        QF3: { t1: getT('B', sB, 1), t2: getT('A', sA, 2) },
+        QF4: { t1: getT('D', sD, 1), t2: getT('C', sC, 2) }
+      };
+
+      const getWinner = (matchId, t1Info, t2Info, label) => {
+        const m = state.data.koMatches[matchId];
+        if (!m || m.s1 === '' || m.s2 === '') return { id: null, name: label };
+        const s1 = parseInt(m.s1, 10);
+        const s2 = parseInt(m.s2, 10);
+        if (isNaN(s1) || isNaN(s2) || s1 === s2) return { id: null, name: label };
+        return s1 > s2 ? t1Info : t2Info;
+      };
+
+      const sf = {
+        SF1: {
+          t1: getWinner('QF1', qf.QF1.t1, qf.QF1.t2, 'Vincitrice Quarto 1'),
+          t2: getWinner('QF2', qf.QF2.t1, qf.QF2.t2, 'Vincitrice Quarto 2')
+        },
+        SF2: {
+          t1: getWinner('QF3', qf.QF3.t1, qf.QF3.t2, 'Vincitrice Quarto 3'),
+          t2: getWinner('QF4', qf.QF4.t1, qf.QF4.t2, 'Vincitrice Quarto 4')
+        }
+      };
+
+      const f = {
+        F: {
+          t1: getWinner('SF1', sf.SF1.t1, sf.SF1.t2, 'Vincitrice Semifinale 1'),
+          t2: getWinner('SF2', sf.SF2.t1, sf.SF2.t2, 'Vincitrice Semifinale 2')
+        }
+      };
+
+      return { ...qf, ...sf, ...f };
+    }
+
+    // --- Salvataggio Dati su Firebase Firestore ---
+    async function updateMatchScore(matchPath, s1, s2) {
+      if (!state.isAdmin || !state.data) return;
+
+      const [section, key] = matchPath.split('.');
+      const currentMatch = state.data[section][key];
+      if (currentMatch.s1 === s1 && currentMatch.s2 === s2) return;
+
+      // Aggiornamento ottimistico immediato
+      state.data[section][key] = { ...currentMatch, s1, s2 };
+      renderApp();
+
+      if (!db) {
+        showToast('Errore: Database Firebase non inizializzato');
+        return;
+      }
+
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'tournament_state', 'main');
+      try {
+        await updateDoc(docRef, {
+          [`${matchPath}.s1`]: s1,
+          [`${matchPath}.s2`]: s2
+        });
+        state.cloudStatus = 'connected';
+        updateCloudBadge();
+        showToast('Risultato salvato su Firebase in tempo reale');
+      } catch (e) {
+        try {
+          await setDoc(docRef, state.data, { merge: true });
+          state.cloudStatus = 'connected';
+          updateCloudBadge();
+          showToast('Risultato salvato su Firebase in tempo reale');
+        } catch (err) {
+          console.error('Errore scrittura Firestore:', err);
+          state.cloudStatus = 'error';
+          updateCloudBadge();
+          showToast('Permesso negato su Firebase: verifica Regole Firestore e Auth Anonima');
+        }
+      }
+    }
+
+    async function saveTeamName(teamId, newName) {
+      if (!state.isAdmin || !teamId || !newName.trim() || !state.data) return;
+      const trimmed = newName.trim();
+
+      state.data.teams[teamId] = { name: trimmed };
+      renderApp();
+
+      if (!db) {
+        showToast('Errore: Database Firebase non inizializzato');
+        return;
+      }
+
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'tournament_state', 'main');
+      try {
+        await updateDoc(docRef, {
+          [`teams.${teamId}.name`]: trimmed
+        });
+        state.cloudStatus = 'connected';
+        updateCloudBadge();
+        showToast('Nome squadra salvato su Firebase');
+      } catch (e) {
+        try {
+          await setDoc(docRef, state.data, { merge: true });
+          state.cloudStatus = 'connected';
+          updateCloudBadge();
+          showToast('Nome squadra salvato su Firebase');
+        } catch (err) {
+          console.error('Errore scrittura nome squadra su Firestore:', err);
+          state.cloudStatus = 'error';
+          updateCloudBadge();
+          showToast('Permesso negato su Firebase: verifica Regole Firestore e Auth Anonima');
+        }
+      }
+    }
+
+    // --- Componenti HTML Generati ---
+    function renderKOMatchCard(matchId, title, match, t1, t2) {
+      const n1 = parseInt(match.s1, 10);
+      const n2 = parseInt(match.s2, 10);
+      const hasResult = match.s1 !== '' && match.s2 !== '' && !isNaN(n1) && !isNaN(n2);
+      const t1Won = hasResult && n1 > n2;
+      const t2Won = hasResult && n2 > n1;
+
+      const t1Class = t1Won
+        ? 'text-blue-700 font-bold'
+        : t1?.id
+        ? 'text-slate-800 font-medium'
+        : 'text-slate-400 italic';
+
+      const t2Class = t2Won
+        ? 'text-blue-700 font-bold'
+        : t2?.id
+        ? 'text-slate-800 font-medium'
+        : 'text-slate-400 italic';
+
+      const score1Html = state.isAdmin
+        ? `<input type="number" min="0" placeholder="-" value="${escapeHtml(match.s1)}" data-ko-match="${matchId}" data-side="1" class="ko-score-input w-11 h-8 text-center border border-slate-300 rounded-md bg-white shadow-inner focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" />`
+        : `<span class="w-9 text-center font-bold text-sm ${t1Won ? 'text-blue-700' : 'text-slate-800'}">${match.s1 !== '' ? escapeHtml(match.s1) : '-'}</span>`;
+
+      const score2Html = state.isAdmin
+        ? `<input type="number" min="0" placeholder="-" value="${escapeHtml(match.s2)}" data-ko-match="${matchId}" data-side="2" class="ko-score-input w-11 h-8 text-center border border-slate-300 rounded-md bg-white shadow-inner focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" />`
+        : `<span class="w-9 text-center font-bold text-sm ${t2Won ? 'text-blue-700' : 'text-slate-800'}">${match.s2 !== '' ? escapeHtml(match.s2) : '-'}</span>`;
+
+      return `
+        <div class="bg-white rounded-xl shadow-md border border-slate-200/80 overflow-hidden w-64 md:w-72 shrink-0 relative z-10 transition-transform hover:-translate-y-0.5">
+          <div class="bg-slate-800 text-slate-100 text-xs font-bold px-3 py-1.5 uppercase tracking-wider text-center">
+            ${escapeHtml(title)}
+          </div>
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between p-3 border-b border-slate-100 ${t1Won ? 'bg-blue-50/70' : ''}">
+              <span class="text-sm truncate pr-2 ${t1Class}">${escapeHtml(t1.name)}</span>
+              ${score1Html}
+            </div>
+            <div class="flex items-center justify-between p-3 ${t2Won ? 'bg-blue-50/70' : ''}">
+              <span class="text-sm truncate pr-2 ${t2Class}">${escapeHtml(t2.name)}</span>
+              ${score2Html}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBracketBlock(koTeams, wrapperPy = 'py-4 px-2', connectorHeight = 'h-[410px]') {
+      return `
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-6 overflow-x-auto custom-scrollbar">
+          <div class="min-w-[880px] mx-auto ${wrapperPy} flex justify-between items-center relative">
+            <!-- Quarti di Finale -->
+            <div class="flex flex-col gap-6">
+              ${renderKOMatchCard('QF1', 'Quarto 1 (1ª A vs 2ª B)', state.data.koMatches.QF1, koTeams.QF1.t1, koTeams.QF1.t2)}
+              ${renderKOMatchCard('QF2', 'Quarto 2 (1ª C vs 2ª D)', state.data.koMatches.QF2, koTeams.QF2.t1, koTeams.QF2.t2)}
+              ${renderKOMatchCard('QF3', 'Quarto 3 (1ª B vs 2ª A)', state.data.koMatches.QF3, koTeams.QF3.t1, koTeams.QF3.t2)}
+              ${renderKOMatchCard('QF4', 'Quarto 4 (1ª D vs 2ª C)', state.data.koMatches.QF4, koTeams.QF4.t1, koTeams.QF4.t2)}
+            </div>
+
+            <!-- Linee di collegamento Quarti -> Semifinali -->
+            <div class="flex flex-col justify-around ${connectorHeight} w-10 shrink-0">
+              <div class="h-36 border-y-2 border-r-2 border-slate-300 rounded-r-xl"></div>
+              <div class="h-36 border-y-2 border-r-2 border-slate-300 rounded-r-xl"></div>
+            </div>
+
+            <!-- Semifinali -->
+            <div class="flex flex-col gap-36">
+              ${renderKOMatchCard('SF1', 'Semifinale 1', state.data.koMatches.SF1, koTeams.SF1.t1, koTeams.SF1.t2)}
+              ${renderKOMatchCard('SF2', 'Semifinale 2', state.data.koMatches.SF2, koTeams.SF2.t1, koTeams.SF2.t2)}
+            </div>
+
+            <!-- Linee di collegamento Semifinali -> Finale -->
+            <div class="flex flex-col justify-center ${connectorHeight} w-10 shrink-0">
+              <div class="h-60 border-y-2 border-r-2 border-slate-300 rounded-r-xl"></div>
+            </div>
+
+            <!-- Finalissima -->
+            <div class="flex flex-col justify-center">
+              <div class="flex justify-center mb-3 text-amber-500">
+                ${ICONS.medal(40)}
+              </div>
+              ${renderKOMatchCard('F', 'Finalissima', state.data.koMatches.F, koTeams.F.t1, koTeams.F.t2)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMatchRow(match) {
+      const t1Name = state.data.teams[match.t1]?.name || 'TBD';
+      const t2Name = state.data.teams[match.t2]?.name || 'TBD';
+
+      const n1 = parseInt(match.s1, 10);
+      const n2 = parseInt(match.s2, 10);
+      const hasResult = match.s1 !== '' && match.s2 !== '' && !isNaN(n1) && !isNaN(n2);
+      const t1Won = hasResult && n1 > n2;
+      const t2Won = hasResult && n2 > n1;
+      const isOvertime = hasResult && Math.max(n1, n2) > 10;
+
+      const centerControls = state.isAdmin
+        ? `
+          <input type="number" min="0" placeholder="-" value="${escapeHtml(match.s1)}" data-group-match="${escapeHtml(match.key)}" data-side="1" class="group-score-input w-12 h-10 text-center border border-slate-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-bold text-base sm:text-lg" />
+          <span class="text-slate-400 font-bold">-</span>
+          <input type="number" min="0" placeholder="-" value="${escapeHtml(match.s2)}" data-group-match="${escapeHtml(match.key)}" data-side="2" class="group-score-input w-12 h-10 text-center border border-slate-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-bold text-base sm:text-lg" />
+        `
+        : `
+          <div class="flex items-center justify-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg min-w-[96px]">
+            <span class="w-7 text-center font-bold text-base sm:text-lg ${t1Won ? 'text-blue-600' : 'text-slate-800'}">${match.s1 !== '' ? escapeHtml(match.s1) : '-'}</span>
+            <span class="text-slate-400 font-bold">:</span>
+            <span class="w-7 text-center font-bold text-base sm:text-lg ${t2Won ? 'text-blue-600' : 'text-slate-800'}">${match.s2 !== '' ? escapeHtml(match.s2) : '-'}</span>
+          </div>
+        `;
+
+      const overtimeBadge = isOvertime
+        ? `<span class="text-[10px] font-semibold uppercase tracking-wider text-amber-600 mt-1">Ai vantaggi (2pt / 1pt)</span>`
+        : '';
+
+      return `
+        <div class="flex items-center justify-between p-3 sm:p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50/80 transition-colors gap-2">
+          <div class="flex-1 text-right truncate px-2 text-sm sm:text-base ${t1Won ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}">
+            ${escapeHtml(t1Name)}
+          </div>
+          <div class="flex flex-col items-center shrink-0">
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              ${centerControls}
+            </div>
+            ${overtimeBadge}
+          </div>
+          <div class="flex-1 text-left truncate px-2 text-sm sm:text-base ${t2Won ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}">
+            ${escapeHtml(t2Name)}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- PAGINA 1: TABELLONE ---
+    function renderTabellonePage() {
+      const koTeams = getKoTeams();
+      const groupsList = ['A', 'B', 'C', 'D'];
+
+      const finalMatch = state.data.koMatches.F;
+      const f1 = parseInt(finalMatch.s1, 10);
+      const f2 = parseInt(finalMatch.s2, 10);
+      const champion =
+        finalMatch.s1 !== '' && finalMatch.s2 !== '' && !isNaN(f1) && !isNaN(f2) && f1 !== f2
+          ? f1 > f2
+            ? koTeams.F.t1
+            : koTeams.F.t2
+          : null;
+
+      const championHtml =
+        champion && champion.id
+          ? `
+            <div class="bg-amber-500/20 border border-amber-400/50 rounded-xl px-4 py-3 flex items-center gap-3">
+              ${ICONS.trophy(28, 'text-amber-400 shrink-0')}
+              <div>
+                <div class="text-[11px] uppercase font-bold text-amber-300">Campione in Carica</div>
+                <div class="text-lg font-black text-white">${escapeHtml(champion.name)}</div>
+              </div>
+            </div>
+          `
+          : '';
+
+      const groupsGridHtml = groupsList
+        .map((g) => {
+          const standings = calculateStandings(g);
+          const { played, total } = getGroupProgress(g);
+          const pct = Math.round((played / total) * 100);
+
+          const rowsHtml = standings
+            .map(
+              (team, idx) => `
+              <div class="flex items-center justify-between px-2.5 py-2 rounded-lg text-sm ${
+                idx < 2
+                  ? 'bg-emerald-50 border border-emerald-200/70 font-bold text-slate-900'
+                  : 'bg-slate-50/70 text-slate-600'
+              }">
+                <div class="flex items-center gap-2 truncate pr-2">
+                  <span class="w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 ${
+                    idx < 2 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                  }">
+                    ${idx + 1}
+                  </span>
+                  <span class="truncate">${escapeHtml(team.name)}</span>
+                </div>
+                <span class="font-extrabold text-blue-600 shrink-0">
+                  ${team.pts} <span class="text-[10px] font-normal text-slate-400">pt</span>
+                </span>
+              </div>
+            `
+            )
+            .join('');
+
+          return `
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden flex flex-col">
+              <div class="bg-slate-50 px-4 py-3 border-b border-slate-200/80 flex items-center justify-between">
+                <span class="font-black text-slate-800">Girone ${g}</span>
+                <span class="text-xs font-semibold text-slate-500">${played}/${total} gare</span>
+              </div>
+              <div class="w-full bg-slate-100 h-1.5">
+                <div class="bg-blue-600 h-1.5 transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+              <div class="p-3 space-y-1.5 flex-1">
+                ${rowsHtml}
+              </div>
+              <div class="px-3 py-2 bg-slate-50/60 border-t border-slate-100 flex justify-between text-xs">
+                <button type="button" data-goto-group="${g}" class="text-blue-600 font-semibold hover:underline">
+                  Partite Girone ${g}
+                </button>
+                <button type="button" data-goto-page="classifiche" class="text-slate-500 font-medium hover:text-slate-800">
+                  Dettagli
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      return `
+        <div class="space-y-8">
+          <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <span class="inline-block text-xs font-bold uppercase tracking-widest text-blue-300 bg-blue-900/60 px-3 py-1 rounded-full mb-2">
+                Panoramica Generale • 16 Squadre
+              </span>
+              <h2 class="text-2xl sm:text-3xl font-black tracking-tight">
+                Tabellone Grafico del Torneo
+              </h2>
+              <p class="text-slate-300 text-sm mt-1">
+                Visualizzazione completa dalla Fase a Gironi (Andata e Ritorno) fino alla Finalissima.
+              </p>
+            </div>
+            ${championHtml}
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-xs font-black flex items-center justify-center">1</span>
+                <span>Fase a Gironi (Prime 2 qualificate per girone)</span>
+              </h3>
+              <button type="button" data-goto-page="calendario" class="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <span>Vai al Calendario</span>
+                ${ICONS.arrowRight(15)}
+              </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              ${groupsGridHtml}
+            </div>
+          </div>
+
+          <div class="flex flex-col items-center justify-center py-1 text-slate-400">
+            <div class="bg-white border border-slate-200 shadow-sm px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <span>Qualificazione incrociata (Prime 2 di ogni girone)</span>
+              ${ICONS.arrowDown(15, 'text-blue-600')}
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-500 text-white text-xs font-black flex items-center justify-center">2</span>
+                <span>Tabellone Eliminazione Diretta</span>
+              </h3>
+              <button type="button" data-goto-page="fase_finale" class="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <span>Apri scheda Fase Finale</span>
+                ${ICONS.arrowRight(15)}
+              </button>
+            </div>
+            ${renderBracketBlock(koTeams, 'py-4 px-2', 'h-[410px]')}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- PAGINA 2: CALENDARIO ---
+    function renderCalendarioPage() {
+      const groupMatches = Object.entries(state.data.groupMatches)
+        .filter(([_, m]) => m.group === state.calendarGroup)
+        .map(([k, m]) => ({ key: k, ...m }));
+
+      const allRounds = [1, 2, 3, 4, 5, 6].map((r) => ({
+        round: r,
+        leg: r <= 3 ? 'Andata' : 'Ritorno',
+        matches: groupMatches.filter((m) => m.round === r)
+      }));
+
+      const visibleRounds = allRounds.filter((r) => {
+        if (state.legFilter === 'Tutte') return true;
+        return r.leg === state.legFilter;
+      });
+
+      const legButtonsHtml = ['Tutte', 'Andata', 'Ritorno']
+        .map(
+          (filter) => `
+          <button type="button" data-leg-filter="${filter}" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
+            state.legFilter === filter
+              ? 'bg-white text-blue-600 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }">
+            ${filter}
+          </button>
+        `
+        )
+        .join('');
+
+      const groupTabsHtml = ['A', 'B', 'C', 'D']
+        .map((g) => {
+          const { played, total } = getGroupProgress(g);
+          const isSelected = state.calendarGroup === g;
+          const dotHtml =
+            played === total
+              ? `<span class="w-2.5 h-2.5 rounded-full ${isSelected ? 'bg-emerald-300' : 'bg-emerald-500'}" title="Tutte le partite completate"></span>`
+              : '';
+
+          return `
+            <button type="button" data-cal-group="${g}" class="p-3.5 rounded-xl font-bold transition-all border text-left flex items-center justify-between ${
+              isSelected
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+            }">
+              <div>
+                <div class="text-base sm:text-lg">Girone ${g}</div>
+                <div class="text-xs font-medium ${isSelected ? 'text-blue-100' : 'text-slate-400'}">
+                  ${played}/${total} giocate
+                </div>
+              </div>
+              ${dotHtml}
+            </button>
+          `;
+        })
+        .join('');
+
+      const roundsCardsHtml = visibleRounds
+        .map(
+          (r) => `
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-3 border-b border-slate-200/80 flex items-center justify-between">
+              <span class="font-bold text-slate-800">
+                Girone ${state.calendarGroup} • Giornata ${r.round}
+              </span>
+              <span class="text-xs font-bold px-3 py-1 rounded-full ${
+                r.leg === 'Andata' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
+              }">
+                ${r.leg}
+              </span>
+            </div>
+            <div>
+              ${r.matches.map((m) => renderMatchRow(m)).join('')}
+            </div>
+          </div>
+        `
+        )
+        .join('');
+
+      return `
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-800">
+                Calendario Partite • Andata e Ritorno
+              </h2>
+              <p class="text-sm text-slate-500 mt-0.5">
+                Seleziona uno dei 4 gironi per consultare tutte le giornate di andata e ritorno.
+              </p>
+            </div>
+            <div class="flex bg-slate-100 p-1 rounded-xl self-start sm:self-auto">
+              ${legButtonsHtml}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            ${groupTabsHtml}
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            ${roundsCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- PAGINA 3: CLASSIFICHE ---
+    function renderClassifichePage() {
+      const tablesHtml = ['A', 'B', 'C', 'D']
+        .map((g) => {
+          const standings = calculateStandings(g);
+          const { played, total } = getGroupProgress(g);
+
+          const rowsHtml = standings
+            .map((team, idx) => {
+              const editBtnHtml = state.isAdmin
+                ? `<button type="button" data-edit-team="${escapeHtml(team.id)}" class="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Rinomina squadra">${ICONS.edit(13)}</button>`
+                : '';
+
+              const gdColor =
+                team.gd > 0
+                  ? 'text-emerald-600'
+                  : team.gd < 0
+                  ? 'text-rose-500'
+                  : 'text-slate-500';
+
+              return `
+                <tr class="border-b last:border-0 border-slate-100 ${idx < 2 ? 'bg-emerald-50/45' : ''}">
+                  <td class="p-3 text-center">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                      idx < 2 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                    }">
+                      ${idx + 1}
+                    </span>
+                  </td>
+                  <td class="p-3 font-semibold text-slate-800">
+                    <div class="flex items-center gap-1.5">
+                      <span>${escapeHtml(team.name)}</span>
+                      ${editBtnHtml}
+                    </div>
+                  </td>
+                  <td class="p-3 text-center font-black text-blue-600 text-base">${team.pts}</td>
+                  <td class="p-3 text-center text-slate-600">${team.p}</td>
+                  <td class="p-3 text-center text-slate-600">${team.w}</td>
+                  <td class="p-3 text-center text-slate-600">${team.l}</td>
+                  <td class="p-3 text-center text-slate-600 hidden sm:table-cell">${team.gf}</td>
+                  <td class="p-3 text-center text-slate-600 hidden sm:table-cell">${team.ga}</td>
+                  <td class="p-3 text-center font-semibold ${gdColor}">
+                    ${team.gd > 0 ? `+${team.gd}` : team.gd}
+                  </td>
+                </tr>
+              `;
+            })
+            .join('');
+
+          return `
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+              <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  ${ICONS.trophy(20, 'text-amber-500')}
+                  <h3 class="text-lg font-extrabold text-slate-800">Girone ${g}</h3>
+                </div>
+                <span class="text-xs font-semibold text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
+                  ${played}/${total} partite
+                </span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="bg-slate-50/50 text-slate-500 text-left border-b border-slate-100">
+                      <th class="p-3 font-semibold w-10 text-center">#</th>
+                      <th class="p-3 font-semibold">Squadra</th>
+                      <th class="p-3 font-bold text-slate-800 text-center">PT</th>
+                      <th class="p-3 font-semibold text-center">G</th>
+                      <th class="p-3 font-semibold text-center">V</th>
+                      <th class="p-3 font-semibold text-center">P</th>
+                      <th class="p-3 font-semibold text-center hidden sm:table-cell">GF</th>
+                      <th class="p-3 font-semibold text-center hidden sm:table-cell">GS</th>
+                      <th class="p-3 font-semibold text-center">DR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rowsHtml}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      return `
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-800">
+                Classifiche Gironi in Tempo Reale
+              </h2>
+              <p class="text-sm text-slate-500 mt-0.5">
+                Ordinate per: Punti (PT), Scontro Diretto, Differenza Reti (DR) e Gol Fatti (GF).
+              </p>
+            </div>
+            <span class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100 px-3.5 py-2 rounded-full self-start sm:self-auto">
+              <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+              <span>Aggiornamento Live Attivo</span>
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            ${tablesHtml}
+          </div>
+
+          <div class="bg-white border border-slate-200/80 rounded-xl p-4 text-xs text-slate-600 flex flex-wrap gap-x-5 gap-y-2 items-center">
+            <span class="font-bold text-slate-800">Legenda:</span>
+            <span><strong class="text-emerald-700">Verde</strong> = Qualificate ai Quarti di Finale</span>
+            <span><strong>PT</strong> = Punti</span>
+            <span><strong>G</strong> = Giocate</span>
+            <span><strong>V</strong> = Vinte</span>
+            <span><strong>P</strong> = Perse</span>
+            <span><strong>GF</strong> = Gol Fatti</span>
+            <span><strong>GS</strong> = Gol Subiti</span>
+            <span><strong>DR</strong> = Differenza Reti</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- PAGINA 4: FASE FINALE ---
+    function renderFaseFinalePage() {
+      const koTeams = getKoTeams();
+      const finalMatch = state.data.koMatches.F;
+      const f1 = parseInt(finalMatch.s1, 10);
+      const f2 = parseInt(finalMatch.s2, 10);
+      const champion =
+        finalMatch.s1 !== '' && finalMatch.s2 !== '' && !isNaN(f1) && !isNaN(f2) && f1 !== f2
+          ? f1 > f2
+            ? koTeams.F.t1
+            : koTeams.F.t2
+          : null;
+
+      const completedGroupsCount = ['A', 'B', 'C', 'D'].filter((g) => isGroupFinished(g)).length;
+
+      const championBanner =
+        champion && champion.id
+          ? `
+            <div class="bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-2xl p-5 shadow-lg flex items-center justify-center gap-4">
+              ${ICONS.trophy(36, 'shrink-0')}
+              <div class="text-center sm:text-left">
+                <div class="text-xs uppercase tracking-widest font-bold opacity-90">Campioni del Torneo</div>
+                <div class="text-2xl sm:text-3xl font-black">${escapeHtml(champion.name)}</div>
+              </div>
+            </div>
+          `
+          : '';
+
+      return `
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-800">
+                Fase Finale a Eliminazione Diretta
+              </h2>
+              <p class="text-sm text-slate-500 mt-0.5">
+                Le prime 2 squadre di ogni girone accedono automaticamente ai Quarti di Finale.
+              </p>
+            </div>
+            <span class="text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 px-3.5 py-2 rounded-full self-start sm:self-auto">
+              Gironi completati: ${completedGroupsCount} / 4
+            </span>
+          </div>
+
+          ${championBanner}
+
+          ${renderBracketBlock(koTeams, 'py-8 px-4', 'h-[420px]')}
+        </div>
+      `;
+    }
+
+    // --- PAGINA 5: REGOLAMENTO ---
+    function renderRegolamentoPage() {
+      return `
+        <div class="space-y-6 max-w-4xl mx-auto">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+            <div class="flex items-center gap-2.5 text-blue-600 font-bold text-xs uppercase tracking-wider mb-2">
+              ${ICONS.bookOpen(16)}
+              <span>Rimando Veloce & Consultazione Rapida</span>
+            </div>
+            <h2 class="text-2xl font-black text-slate-800 mb-3">
+              Art. 4 – Struttura del Torneo e Formato Incontri
+            </h2>
+            <p class="text-sm text-slate-600 mb-4">
+              Usa i collegamenti rapidi qui sotto per saltare direttamente alla sezione desiderata del regolamento oppure alle sezioni operative del torneo.
+            </p>
+
+            <div class="flex flex-wrap gap-2 pb-4 border-b border-slate-100">
+              <button type="button" data-scroll-to="reg-struttura" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 text-xs sm:text-sm font-semibold transition-colors">
+                1. Struttura del Torneo
+              </button>
+              <button type="button" data-scroll-to="reg-gironi" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 text-xs sm:text-sm font-semibold transition-colors">
+                2. Formula Andata e Ritorno
+              </button>
+              <button type="button" data-scroll-to="reg-punteggi" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 text-xs sm:text-sm font-semibold transition-colors">
+                3. Attribuzione Punteggi
+              </button>
+              <button type="button" data-scroll-to="reg-qualificazione" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 text-xs sm:text-sm font-semibold transition-colors">
+                4. Qualificazione e Criteri Parità
+              </button>
+            </div>
+
+            <div class="pt-4 flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-bold text-slate-500 uppercase mr-1">Vai subito a:</span>
+              <button type="button" data-goto-page="tabellone" class="px-3 py-1.5 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors">
+                Tabellone Generale
+              </button>
+              <button type="button" data-goto-page="calendario" class="px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition-colors">
+                Calendario Partite
+              </button>
+              <button type="button" data-goto-page="classifiche" class="px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition-colors">
+                Classifiche Live
+              </button>
+              <button type="button" data-goto-page="fase_finale" class="px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition-colors">
+                Fase Finale
+              </button>
+            </div>
+          </div>
+
+          <div id="reg-struttura" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 scroll-mt-28">
+            <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+              <span>Struttura Generale del Torneo</span>
+            </h3>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Il torneo a <strong>16 squadre</strong> si articola in due fasi consecutive:
+            </p>
+            <ul class="mt-3 space-y-2 text-sm sm:text-base text-slate-700 list-disc pl-5">
+              <li>
+                <strong>Fase a Gironi:</strong> le 16 squadre sono suddivise in <strong>4 gironi</strong> (Girone A, Girone B, Girone C e Girone D) composti da <strong>4 formazioni ciascuno</strong>.
+              </li>
+              <li>
+                <strong>Fase Finale a Eliminazione Diretta:</strong> accedono le migliori 8 squadre complessivamente (prime 2 di ogni girone) per disputare Quarti di Finale, Semifinali e Finalissima.
+              </li>
+            </ul>
+          </div>
+
+          <div id="reg-gironi" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 scroll-mt-28">
+            <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+              <span>Formato degli Incontri nella Fase a Gironi</span>
+            </h3>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Ogni confronto tra due squadre dello stesso girone prevede la formula di
+              <strong>andata e ritorno (2 partite distinte)</strong>, per un totale di 6 giornate (3 di andata e 3 di ritorno) e 12 partite per ciascun girone.
+            </p>
+          </div>
+
+          <div id="reg-punteggi" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 scroll-mt-28">
+            <h3 class="text-lg font-extrabold text-slate-800 mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">3</span>
+              <span>Sistema di Attribuzione Punteggi</span>
+            </h3>
+            <p class="text-slate-600 text-sm mb-4">
+              Per ciascuna partita disputata nella fase a gironi vengono assegnati automaticamente i seguenti punti in classifica:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                <div class="text-xl font-black text-emerald-700">3 Punti</div>
+                <div class="font-bold text-slate-800 text-sm mt-0.5">Vittoria entro i 10 gol regolamentari</div>
+                <div class="text-xs text-slate-600 mt-1">Esempio: 10-8, 10-5, 10-0</div>
+              </div>
+              <div class="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                <div class="text-xl font-black text-blue-700">2 Punti</div>
+                <div class="font-bold text-slate-800 text-sm mt-0.5">Vittoria ai vantaggi</div>
+                <div class="text-xs text-slate-600 mt-1">Esempio: 11-9, 12-10</div>
+              </div>
+              <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                <div class="text-xl font-black text-amber-700">1 Punto</div>
+                <div class="font-bold text-slate-800 text-sm mt-0.5">Sconfitta ai vantaggi</div>
+                <div class="text-xs text-slate-600 mt-1">Esempio: 9-11, 10-12</div>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="text-xl font-black text-slate-700">0 Punti</div>
+                <div class="font-bold text-slate-800 text-sm mt-0.5">Sconfitta entro i tempi regolamentari</div>
+                <div class="text-xs text-slate-600 mt-1">Esempio: 8-10, 5-10</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="reg-qualificazione" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 scroll-mt-28">
+            <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">4</span>
+              <span>Qualificazione e Criteri in Caso di Parità</span>
+            </h3>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-3">
+              Accedono alla fase a eliminazione diretta le <strong>prime due squadre classificate</strong> per ciascun girone. In caso di parità di punteggio tra due o più squadre, la classifica viene determinata considerando nell’ordine:
+            </p>
+            <ol class="space-y-2 text-sm sm:text-base text-slate-700 list-decimal pl-5 font-medium">
+              <li>
+                <strong>Esito dello scontro diretto</strong> (punti e differenza reti negli incontri tra le squadre a pari punti);
+              </li>
+              <li>
+                <strong>Differenza reti complessiva</strong> (DR = Gol Fatti meno Gol Subiti in tutto il girone);
+              </li>
+              <li>
+                <strong>Eventuale spareggio tecnico</strong> (qualora persistesse la perfetta parità).
+              </li>
+            </ol>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- Render Barra di Navigazione ---
+    function renderNavigation() {
+      const navPages = [
+        { id: 'tabellone', label: 'Tabellone', icon: ICONS.layoutGrid(16) },
+        { id: 'calendario', label: 'Calendario', icon: ICONS.calendar(16) },
+        { id: 'classifiche', label: 'Classifiche', icon: ICONS.barChart(16) },
+        { id: 'fase_finale', label: 'Fase finale', icon: ICONS.trophy(16) },
+        { id: 'regolamento', label: 'Regolamento', icon: ICONS.bookOpen(16) }
+      ];
+
+      const navContainer = document.getElementById('main-nav');
+      if (!navContainer) return;
+
+      navContainer.innerHTML = navPages
+        .map((page) => {
+          const isCurrent = state.activePage === page.id;
+          return `
+            <button type="button" data-nav-page="${page.id}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all ${
+              isCurrent
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
+            }">
+              ${page.icon}
+              <span>${page.label}</span>
+            </button>
+          `;
+        })
+        .join('');
+    }
+
+    // --- Render Generale dell'Applicazione ---
+    function renderApp() {
+      renderNavigation();
+      updateAdminButton();
+      updateCloudBadge();
+
+      const mainEl = document.getElementById('app-main');
+      if (!mainEl || !state.data) return;
+
+      switch (state.activePage) {
+        case 'tabellone':
+          mainEl.innerHTML = renderTabellonePage();
+          break;
+        case 'calendario':
+          mainEl.innerHTML = renderCalendarioPage();
+          break;
+        case 'classifiche':
+          mainEl.innerHTML = renderClassifichePage();
+          break;
+        case 'fase_finale':
+          mainEl.innerHTML = renderFaseFinalePage();
+          break;
+        case 'regolamento':
+          mainEl.innerHTML = renderRegolamentoPage();
+          break;
+        default:
+          mainEl.innerHTML = renderTabellonePage();
+      }
+    }
+
+    // --- Event Delegation Globale ---
+    document.addEventListener('click', (e) => {
+      // Cambio pagina dalla barra principale
+      const navBtn = e.target.closest('[data-nav-page]');
+      if (navBtn) {
+        state.activePage = navBtn.getAttribute('data-nav-page');
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // Cambio pagina rapido da link interni
+      const gotoBtn = e.target.closest('[data-goto-page]');
+      if (gotoBtn) {
+        state.activePage = gotoBtn.getAttribute('data-goto-page');
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // Apertura diretta partite di un girone dal Tabellone
+      const gotoGroupBtn = e.target.closest('[data-goto-group]');
+      if (gotoGroupBtn) {
+        state.calendarGroup = gotoGroupBtn.getAttribute('data-goto-group');
+        state.activePage = 'calendario';
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // Cambio tab Girone nel Calendario
+      const calGroupBtn = e.target.closest('[data-cal-group]');
+      if (calGroupBtn) {
+        state.calendarGroup = calGroupBtn.getAttribute('data-cal-group');
+        renderApp();
+        return;
+      }
+
+      // Filtro Andata / Ritorno nel Calendario
+      const legBtn = e.target.closest('[data-leg-filter]');
+      if (legBtn) {
+        state.legFilter = legBtn.getAttribute('data-leg-filter');
+        renderApp();
+        return;
+      }
+
+      // Scorrimento rapido sezioni Regolamento
+      const scrollBtn = e.target.closest('[data-scroll-to]');
+      if (scrollBtn) {
+        const targetId = scrollBtn.getAttribute('data-scroll-to');
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      // Apertura modale modifica nome squadra (Admin)
+      const editTeamBtn = e.target.closest('[data-edit-team]');
+      if (editTeamBtn && state.isAdmin) {
+        const teamId = editTeamBtn.getAttribute('data-edit-team');
+        state.editingTeamId = teamId;
+        const input = document.getElementById('input-team-name');
+        const modal = document.getElementById('modal-edit-team');
+        if (input && modal) {
+          input.value = state.data.teams[teamId]?.name || '';
+          modal.classList.remove('hidden');
+          input.focus();
+        }
+        return;
+      }
+    });
+
+    // Gestione salvataggio punteggi su blur (uscita dal campo)
+    document.addEventListener(
+      'blur',
+      (e) => {
+        if (e.target.classList.contains('group-score-input')) {
+          const matchKey = e.target.getAttribute('data-group-match');
+          const inputs = document.querySelectorAll(`.group-score-input[data-group-match="${matchKey}"]`);
+          if (inputs.length === 2) {
+            updateMatchScore(`groupMatches.${matchKey}`, inputs[0].value, inputs[1].value);
+          }
+        } else if (e.target.classList.contains('ko-score-input')) {
+          const matchId = e.target.getAttribute('data-ko-match');
+          const inputs = document.querySelectorAll(`.ko-score-input[data-ko-match="${matchId}"]`);
+          if (inputs.length === 2) {
+            updateMatchScore(`koMatches.${matchId}`, inputs[0].value, inputs[1].value);
+          }
+        }
+      },
+      true
+    );
+
+    // Conferma punteggio premendo Invio
+    document.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'Enter' &&
+        (e.target.classList.contains('group-score-input') || e.target.classList.contains('ko-score-input'))
+      ) {
+        e.target.blur();
+      }
+    });
+
+    // --- Pulsante Condividi Link ---
+    document.getElementById('btn-share').addEventListener('click', async () => {
+      const url = window.location.href;
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast('Link copiato! Condividilo con i partecipanti.');
+      } catch {
+        const tempInput = document.createElement('input');
+        tempInput.value = url;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast('Link copiato! Condividilo con i partecipanti.');
+      }
+    });
+
+    // --- Gestione Modale Admin ---
+    const adminModal = document.getElementById('modal-admin');
+    const adminPwdInput = document.getElementById('input-admin-pwd');
+    const adminErrorText = document.getElementById('admin-login-error');
+
+    document.getElementById('btn-admin').addEventListener('click', () => {
+      if (state.isAdmin) {
+        state.isAdmin = false;
+        showToast('Modalità Admin disattivata');
+        renderApp();
+      } else {
+        adminErrorText.classList.add('hidden');
+        adminPwdInput.className = 'w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all';
+        adminPwdInput.value = '';
+        adminModal.classList.remove('hidden');
+        adminPwdInput.focus();
+      }
+    });
+
+    document.getElementById('close-admin-modal').addEventListener('click', () => {
+      adminModal.classList.add('hidden');
+    });
+
+    document.getElementById('form-admin-login').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (adminPwdInput.value === 'admin') {
+        state.isAdmin = true;
+        adminModal.classList.add('hidden');
+        adminPwdInput.value = '';
+        adminErrorText.classList.add('hidden');
+        showToast('Modalità Admin attivata: ogni modifica viene salvata su Firebase');
+        renderApp();
+      } else {
+        adminErrorText.classList.remove('hidden');
+        adminPwdInput.className = 'w-full px-4 py-2.5 border border-rose-400 focus:ring-2 focus:ring-rose-500 bg-rose-50/30 rounded-lg outline-none transition-all';
+        adminPwdInput.value = '';
+        adminPwdInput.focus();
+      }
+    });
+
+    // --- Gestione Modale Modifica Nome Squadra ---
+    const editTeamModal = document.getElementById('modal-edit-team');
+    const teamNameInput = document.getElementById('input-team-name');
+
+    const closeEditTeamModal = () => {
+      editTeamModal.classList.add('hidden');
+      state.editingTeamId = null;
+    };
+
+    document.getElementById('close-edit-team-modal').addEventListener('click', closeEditTeamModal);
+    document.getElementById('cancel-edit-team').addEventListener('click', closeEditTeamModal);
+
+    document.getElementById('form-edit-team').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (state.editingTeamId && teamNameInput.value.trim()) {
+        const id = state.editingTeamId;
+        const val = teamNameInput.value;
+        closeEditTeamModal();
+        await saveTeamName(id, val);
+      }
+    });
+
+    // --- Avvio Connessione Firebase & Sincronizzazione Real-Time ---
+    function startFirestoreListener() {
+      if (!db) {
+        state.cloudStatus = 'error';
+        state.data = state.data || createDefaultData();
+        renderApp();
+        return;
+      }
+
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'tournament_state', 'main');
+      onSnapshot(
+        docRef,
+        (docSnap) => {
+          state.cloudStatus = 'connected';
+          if (docSnap.exists()) {
+            const remoteData = docSnap.data();
+            const updatedTeams = { ...(remoteData.teams || {}) };
+            let needsMigration = false;
+            for (let i = 1; i <= 16; i++) {
+              const id = i.toString();
+              if (!updatedTeams[id] || updatedTeams[id].name === `Squadra ${i}`) {
+                updatedTeams[id] = { name: DEFAULT_TEAM_NAMES[id] };
+                needsMigration = true;
+              }
+            }
+            if (needsMigration) {
+              updateDoc(docRef, { teams: updatedTeams }).catch(() => {});
+              state.data = { ...remoteData, teams: updatedTeams };
+            } else {
+              state.data = remoteData;
+            }
+          } else {
+            const fresh = createDefaultData();
+            state.data = fresh;
+            setDoc(docRef, fresh).catch((err) => {
+              console.error('Errore creazione documento iniziale su Firestore:', err);
+              state.cloudStatus = 'error';
+              updateCloudBadge();
+            });
+          }
+          renderApp();
+        },
+        (error) => {
+          console.error('Errore connessione Firestore:', error);
+          state.cloudStatus = 'error';
+          state.data = state.data || createDefaultData();
+          renderApp();
+        }
+      );
+    }
+
+    async function bootstrap() {
+      renderNavigation();
+      if (!auth) {
+        state.cloudStatus = 'error';
+        state.data = createDefaultData();
+        renderApp();
+        return;
+      }
+
+      let listenerStarted = false;
+      onAuthStateChanged(auth, (currentUser) => {
+        if (currentUser && !listenerStarted) {
+          listenerStarted = true;
+          state.user = currentUser;
+          startFirestoreListener();
+        }
+      });
+
+      try {
+        await signInAnonymously(auth);
+      } catch (error) {
+        console.warn('Accesso anonimo Firebase non attivo o non riuscito:', error.message);
+        if (!listenerStarted) {
+          listenerStarted = true;
+          state.user = { uid: 'unauthenticated-fallback' };
+          startFirestoreListener();
+        }
+      }
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>

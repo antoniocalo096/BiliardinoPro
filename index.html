@@ -62,7 +62,7 @@
 
       <!-- Stato Firebase + Pulsanti Azione -->
       <div class="flex items-center gap-2">
-        <span id="cloud-badge" title="Connessione a Firebase in corso..." class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">
+        <span id="cloud-badge" title="Connessione a Firebase in corso..." class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">
           <span id="cloud-dot" class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
           <span id="cloud-text">Connessione...</span>
         </span>
@@ -123,15 +123,14 @@
       <div class="p-6">
         <form id="form-admin-login" class="space-y-4">
           <p class="text-sm text-slate-500">
-            Inserisci la password amministratore (default:
-            <code class="bg-slate-100 px-1.5 py-0.5 rounded font-bold text-slate-700">admin</code>)
-            per inserire i risultati e rinominare le squadre.
+            Inserisci la password amministratore per inserire i risultati e rinominare le squadre.
           </p>
           <div>
             <label for="input-admin-pwd" class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
             <input
               type="password"
               id="input-admin-pwd"
+              autocomplete="new-password"
               class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               placeholder="Inserisci password..."
             />
@@ -368,7 +367,7 @@
       const text = document.getElementById('cloud-text');
       if (!badge || !dot || !text) return;
 
-      badge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border ';
+      badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border ';
       if (state.cloudStatus === 'connected') {
         badge.className += 'bg-emerald-50 text-emerald-700 border-emerald-200';
         badge.title = 'Database Firebase connesso: tutte le modifiche vengono salvate in tempo reale';
@@ -1552,7 +1551,7 @@
 
     document.getElementById('form-admin-login').addEventListener('submit', (e) => {
       e.preventDefault();
-      if (adminPwdInput.value === 'admin') {
+      if (adminPwdInput.value === 'TuaPasswordSegreta2026') {
         state.isAdmin = true;
         adminModal.classList.add('hidden');
         adminPwdInput.value = '';
@@ -1590,11 +1589,27 @@
     });
 
     // --- Avvio Connessione Firebase & Sincronizzazione Real-Time ---
+    const CACHE_KEY = 'biliardino_pro_cache_v1';
+
+    function loadCachedData() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveCachedData(data) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      } catch {}
+    }
+
     function startFirestoreListener() {
       if (!db) {
         state.cloudStatus = 'error';
-        state.data = state.data || createDefaultData();
-        renderApp();
+        updateCloudBadge();
         return;
       }
 
@@ -1629,44 +1644,39 @@
               updateCloudBadge();
             });
           }
+          saveCachedData(state.data);
           renderApp();
         },
         (error) => {
           console.error('Errore connessione Firestore:', error);
           state.cloudStatus = 'error';
-          state.data = state.data || createDefaultData();
-          renderApp();
+          updateCloudBadge();
         }
       );
     }
 
     async function bootstrap() {
-      renderNavigation();
-      if (!auth) {
+      // 1. Mostra subito il tabellone senza attendere la rete
+      state.data = loadCachedData() || createDefaultData();
+      renderApp();
+
+      if (!db) {
         state.cloudStatus = 'error';
-        state.data = createDefaultData();
-        renderApp();
+        updateCloudBadge();
         return;
       }
 
-      let listenerStarted = false;
-      onAuthStateChanged(auth, (currentUser) => {
-        if (currentUser && !listenerStarted) {
-          listenerStarted = true;
-          state.user = currentUser;
-          startFirestoreListener();
-        }
-      });
+      // 2. Avvia immediatamente l'ascolto real-time di Firestore in parallelo
+      startFirestoreListener();
 
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.warn('Accesso anonimo Firebase non attivo o non riuscito:', error.message);
-        if (!listenerStarted) {
-          listenerStarted = true;
-          state.user = { uid: 'unauthenticated-fallback' };
-          startFirestoreListener();
-        }
+      // 3. Esegue il login anonimo in background per abilitare le scritture Admin
+      if (auth) {
+        onAuthStateChanged(auth, (currentUser) => {
+          if (currentUser) state.user = currentUser;
+        });
+        signInAnonymously(auth).catch((error) => {
+          console.warn('Accesso anonimo Firebase non riuscito:', error.message);
+        });
       }
     }
 

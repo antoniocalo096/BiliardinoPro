@@ -266,16 +266,24 @@
     // --- Generazione Dati Iniziali (4 Gironi da 4, Andata e Ritorno) ---
     function createDefaultData() {
       const teams = {};
+      const teamIds = [];
       for (let i = 1; i <= 16; i++) {
         const id = i.toString();
         teams[id] = { name: DEFAULT_TEAM_NAMES[id] };
+        teamIds.push(id);
+      }
+
+      // Rimescola casualmente le squadre (Algoritmo Fisher-Yates)
+      for (let i = teamIds.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [teamIds[i], teamIds[j]] = [teamIds[j], teamIds[i]];
       }
 
       const groups = {
-        A: ['1', '2', '3', '4'],
-        B: ['5', '6', '7', '8'],
-        C: ['9', '10', '11', '12'],
-        D: ['13', '14', '15', '16']
+        A: teamIds.slice(0, 4),
+        B: teamIds.slice(4, 8),
+        C: teamIds.slice(8, 12),
+        D: teamIds.slice(12, 16)
       };
 
       const groupMatches = {};

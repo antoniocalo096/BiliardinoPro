@@ -245,45 +245,37 @@
 
     // --- Nomi delle 16 Squadre Partecipanti ---
     const DEFAULT_TEAM_NAMES = {
-      '1': 'Anselmo - Niero',
-      '2': 'Calò - Sciacca',
-      '3': 'Scammacca - Troisi',
-      '4': 'Cursaro - Tretola',
-      '5': 'Armento - Palumbo',
-      '6': 'Corrado - Lazzari',
-      '7': 'Pentangelo - Galante',
-      '8': 'Garofalo - Lepore',
+      '1': 'Armento - Palumbo',
+      '2': 'Cursaro - Tretola',
+      '3': 'Tessitore - Secchi',
+      '4': 'Calò - Sciacca',
+      '5': 'Scammacca - Troisi',
+      '6': 'Pentangelo - Galante',
+      '7': 'Garia - T.Col. Iannucci',
+      '8': 'Anselmo - Niero',
       '9': 'Crescenzi - Siliquini',
-      '10': 'Garia - T.Col. Iannucci',
-      '11': 'Porcu - Cau',
-      '12': 'Casini - Riacà',
-      '13': 'Durante - Lavigna',
-      '14': 'Basilicata - De Lisa',
-      '15': 'Tessitore - Secchi',
-      '16': 'Dionisi M. - Cucurachi'
+      '10': 'Durante - Lavigna',
+      '11': 'Casini - Riacà',
+      '12': 'Corrado - Lazzari',
+      '13': 'Porcu - Cau',
+      '14': 'Dionisi M. - Cucurachi',
+      '15': 'Garofalo - Lepore',
+      '16': 'Basilicata - De Lisa'
     };
 
     // --- Generazione Dati Iniziali (4 Gironi da 4, Andata e Ritorno) ---
     function createDefaultData() {
       const teams = {};
-      const teamIds = [];
       for (let i = 1; i <= 16; i++) {
         const id = i.toString();
         teams[id] = { name: DEFAULT_TEAM_NAMES[id] };
-        teamIds.push(id);
-      }
-
-      // Rimescola casualmente le squadre (Algoritmo Fisher-Yates)
-      for (let i = teamIds.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [teamIds[i], teamIds[j]] = [teamIds[j], teamIds[i]];
       }
 
       const groups = {
-        A: teamIds.slice(0, 4),
-        B: teamIds.slice(4, 8),
-        C: teamIds.slice(8, 12),
-        D: teamIds.slice(12, 16)
+        A: ['1', '2', '3', '4'],
+        B: ['5', '6', '7', '8'],
+        C: ['9', '10', '11', '12'],
+        D: ['13', '14', '15', '16']
       };
 
       const groupMatches = {};
